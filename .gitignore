@@ -1,0 +1,13 @@
+*.a
+*.autosave
+*.cbp
+*.cmake
+*.dll
+*.exe
+*.o
+*.so
+*.stash.
+*.user
+CMakeCache.txt
+CMakeFiles/
+Makefile
