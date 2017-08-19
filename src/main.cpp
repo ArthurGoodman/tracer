@@ -17,8 +17,15 @@ int main(int, char **) {
     sf::RenderWindow window(videoMode, windowTitle, sf::Style::Default);
     windowPos = window.getPosition();
 
-    sf::Shader shader;
-    shader.loadFromFile("src/shader.frag", sf::Shader::Fragment);
+    sf::RenderTexture image;
+    if (!image.create(videoMode.width, videoMode.height))
+        return -1;
+
+    sf::Shader imageShader;
+    imageShader.loadFromFile("src/image.frag", sf::Shader::Fragment);
+
+    sf::Shader postfxShader;
+    postfxShader.loadFromFile("src/postfx.frag", sf::Shader::Fragment);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -34,6 +41,7 @@ int main(int, char **) {
                 case sf::Keyboard::Escape:
                     if (isFullscreen) {
                         window.create(videoMode, windowTitle, sf::Style::Default);
+                        image.create(videoMode.width, videoMode.height);
                         window.setPosition(windowPos);
                         isFullscreen = false;
                     } else
@@ -45,10 +53,12 @@ int main(int, char **) {
                 case sf::Keyboard::F:
                     if (isFullscreen) {
                         window.create(videoMode, windowTitle, sf::Style::Default);
+                        image.create(videoMode.width, videoMode.height);
                         window.setPosition(windowPos);
                     } else {
                         windowPos = window.getPosition();
                         window.create(sf::VideoMode::getDesktopMode(), windowTitle, sf::Style::Fullscreen);
+                        image.create(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().height);
                     }
 
                     isFullscreen = !isFullscreen;
@@ -81,12 +91,23 @@ int main(int, char **) {
             }
 
         sf::RenderStates states;
-        states.shader = &shader;
+        states.shader = &imageShader;
 
-        shader.setUniform("resolution", sf::Glsl::Vec2(window.getSize()));
+        imageShader.setUniform("resolution", sf::Glsl::Vec2(window.getSize()));
 
-        sf::RectangleShape windowRect(window.getView().getSize());
-        window.draw(windowRect, states);
+        sf::RectangleShape rect(window.getView().getSize());
+        image.draw(rect, states);
+
+        image.display();
+
+        window.clear();
+
+        states.shader = &postfxShader;
+
+        postfxShader.setUniform("resolution", sf::Glsl::Vec2(window.getSize()));
+        postfxShader.setUniform("image", image.getTexture());
+
+        window.draw(rect, states);
 
         window.display();
     }
