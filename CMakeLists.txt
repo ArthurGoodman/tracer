@@ -19,5 +19,7 @@ find_package(SFML COMPONENTS graphics window system REQUIRED)
 include_directories(${SFML_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
 
+include_directories("../glm")
+
 #set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_BUILD_TYPE Release)
