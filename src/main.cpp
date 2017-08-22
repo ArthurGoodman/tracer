@@ -37,8 +37,10 @@ int main(int, char **) {
     sf::Shader postfxShader;
     postfxShader.loadFromFile("src/postfx.frag", sf::Shader::Fragment);
 
+    static const glm::vec4 defaultCameraOffset = glm::vec4(0, 2, 0, 0);
+
     sf::Vector2f cameraAngles;
-    glm::vec4 cameraOffset;
+    glm::vec4 cameraOffset = defaultCameraOffset;
 
     while (window.isOpen()) {
         sf::Vector2f fixedCursosPos = sf::Vector2f(window.getSize() / 2u);
@@ -76,7 +78,7 @@ int main(int, char **) {
 
                 case sf::Keyboard::R:
                     cameraAngles = sf::Vector2f();
-                    cameraOffset = glm::vec4();
+                    cameraOffset = defaultCameraOffset;
                     break;
 
                 default:
@@ -116,7 +118,7 @@ int main(int, char **) {
         static const glm::vec4 right = glm::vec4(1, 0, 0, 0);
         static const glm::vec4 up = glm::vec4(0, 1, 0, 0);
 
-        float step = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? 0.005f : 0.001f;
+        float step = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? 0.05f : 0.01f;
 
         if (window.hasFocus()) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
