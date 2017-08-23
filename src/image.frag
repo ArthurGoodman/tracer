@@ -4,7 +4,8 @@ varying out vec4 fragColor;
 
 uniform vec2 resolution;
 
-uniform mat4 camera;
+uniform mat4 cam_extr;
+uniform mat3 cam_intr;
 
 //------------------------------------------------------------------
 
@@ -319,8 +320,8 @@ vec3 render(vec3 origin, vec3 direction) {
 void main() {
     vec2 p = (2.0 * gl_FragCoord.xy - resolution) / resolution.y;
 
-    vec3 origin = camera[3].xyz;
-    vec3 direction = (camera * normalize(vec4(p.xy, 2.0, 0.0))).xyz;
+    vec3 origin = cam_extr[3].xyz;
+    vec3 direction = normalize(cam_extr * vec4(cam_intr * vec3(p, 1.0), 0.0)).xyz;
 
     vec3 color = render(origin, direction);
 
