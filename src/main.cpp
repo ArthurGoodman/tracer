@@ -39,10 +39,10 @@ int main(int, char **) {
 
     static const glm::vec4 defaultCameraOffset = glm::vec4(0, 2, 0, 0);
 
-    sf::Vector2f cameraAngles;
+    glm::vec2 cameraAngles;
     glm::vec4 cameraOffset = defaultCameraOffset;
-
-    glm::mat4 cam_t(1.f), cam_r(1.f);
+    glm::mat4 camera, cameraRotation;
+    bool updateCamera = true;
 
     while (window.isOpen()) {
         sf::Vector2i fixedCursosPos = sf::Vector2i(window.getSize() / 2u);
@@ -79,8 +79,9 @@ int main(int, char **) {
                     break;
 
                 case sf::Keyboard::R:
-                    cameraAngles = sf::Vector2f();
+                    cameraAngles = glm::vec2();
                     cameraOffset = defaultCameraOffset;
+                    updateCamera = true;
                     break;
 
                 default:
@@ -109,32 +110,38 @@ int main(int, char **) {
             sf::Mouse::setPosition(fixedCursosPos);
 
             if (delta.x != 0 || delta.y != 0) {
-                cameraAngles += sf::Vector2f(delta) / 200.f;
+                cameraAngles += glm::vec2(delta.x, delta.y) / 200.f;
 
-                cam_r = glm::rotate(glm::mat4(1.f), cameraAngles.x, glm::vec3(0.f, -1.f, 0.f));
-                cam_r = glm::rotate(cam_r, -cameraAngles.y, glm::vec3(1.f, 0.f, 0.f));
+                cameraRotation = glm::rotate(glm::mat4(1.f), cameraAngles.x, glm::vec3(0.f, -1.f, 0.f));
+                cameraRotation = glm::rotate(cameraRotation, -cameraAngles.y, glm::vec3(1.f, 0.f, 0.f));
+
+                updateCamera = true;
             }
 
             float step = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? 0.05f : 0.01f;
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
                 static const glm::vec4 forward = glm::vec4(0, 0, 1, 0);
-                glm::vec4 dir = cam_r * forward * step;
+                glm::vec4 dir = cameraRotation * forward * step;
 
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
                     cameraOffset += dir;
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
                     cameraOffset -= dir;
+
+                updateCamera = true;
             }
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
                 static const glm::vec4 right = glm::vec4(1, 0, 0, 0);
-                glm::vec4 dir = cam_r * right * step;
+                glm::vec4 dir = cameraRotation * right * step;
 
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
                     cameraOffset += dir;
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
                     cameraOffset -= dir;
+
+                updateCamera = true;
             }
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Keyboard::isKeyPressed(sf::Keyboard::C)) {
@@ -145,9 +152,16 @@ int main(int, char **) {
                     cameraOffset += dir;
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
                     cameraOffset -= dir;
+
+                updateCamera = true;
             }
 
-            cam_t = glm::translate(glm::mat4(1.f), glm::vec3(cameraOffset));
+            if (updateCamera) {
+                camera = glm::translate(glm::mat4(1.f), glm::vec3(cameraOffset));
+                camera *= cameraRotation;
+
+                updateCamera = false;
+            }
         }
 
         sf::RenderStates states;
@@ -155,8 +169,7 @@ int main(int, char **) {
 
         imageShader.setUniform("resolution", sf::Glsl::Vec2(window.getSize()));
 
-        imageShader.setUniform("cam_t", sf::Glsl::Mat4(glm::value_ptr(cam_t)));
-        imageShader.setUniform("cam_r", sf::Glsl::Mat4(glm::value_ptr(cam_r)));
+        imageShader.setUniform("camera", sf::Glsl::Mat4(glm::value_ptr(camera)));
 
         sf::RectangleShape rect(window.getView().getSize());
         image.draw(rect, states);

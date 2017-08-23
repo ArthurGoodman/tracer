@@ -4,8 +4,7 @@ varying out vec4 fragColor;
 
 uniform vec2 resolution;
 
-uniform mat4 cam_t;
-uniform mat4 cam_r;
+uniform mat4 camera;
 
 //------------------------------------------------------------------
 
@@ -223,7 +222,7 @@ vec2 castRay(vec3 origin, vec3 direction) {
 }
 
 float shadow(vec3 origin, vec3 direction, float minDist, float maxDist, float k) {
-    const int maxIt = 1000;
+    const int maxIt = 128;
 
     float hit = 1.0;
     float distance = minDist;
@@ -298,8 +297,8 @@ vec3 render(vec3 origin, vec3 direction) {
         float fresnel = pow(clamp(1.0 + dot(normal, direction), 0.0, 1.0), 2.0);
         float specular = pow(clamp(dot(reflection, light), 0.0, 1.0), 16.0);
 
-        diffuse *= shadow( pos, light, 0.001, 5, 64);
-        sky *= shadow( pos, reflection, 0.001, 5, 16);
+        diffuse *= shadow( pos, light, 0.02, 5, 16);
+        sky *= shadow( pos, reflection, 0.02, 5, 16);
 
         vec3 lin = vec3(0.0);
         lin += 1.30 * diffuse * vec3(1.00, 0.80, 0.55);
@@ -320,8 +319,8 @@ vec3 render(vec3 origin, vec3 direction) {
 void main() {
     vec2 p = (2.0 * gl_FragCoord.xy - resolution) / resolution.y;
 
-    vec3 origin = cam_t[3].xyz;
-    vec3 direction = (cam_t * cam_r * normalize(vec4(p.xy, 2.0, 0.0))).xyz;
+    vec3 origin = camera[3].xyz;
+    vec3 direction = (camera * normalize(vec4(p.xy, 2.0, 0.0))).xyz;
 
     vec3 color = render(origin, direction);
 
