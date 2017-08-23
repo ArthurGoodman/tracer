@@ -115,7 +115,7 @@ int main(int, char **) {
                 cam_r = glm::rotate(cam_r, -cameraAngles.y, glm::vec3(1.f, 0.f, 0.f));
             }
 
-            float step = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? 0.005f : 0.001f;
+            float step = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? 0.05f : 0.01f;
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
                 static const glm::vec4 forward = glm::vec4(0, 0, 1, 0);
