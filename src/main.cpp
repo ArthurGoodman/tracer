@@ -41,11 +41,8 @@ int main(int, char **) {
 
     glm::vec2 cameraAngles;
     glm::vec4 cameraOffset = defaultCameraOffset;
-    glm::mat4 cam_extr, cameraRotation;
-    glm::mat3 cam_intr;
+    glm::mat4 camera, cameraRotation;
     bool updateCamera = true;
-
-    float u_x0 = 0, u_y0 = 0, u_fx = 1, u_fy = 1, u_s = 0;
 
     while (window.isOpen()) {
         sf::Vector2i fixedCursosPos = sf::Vector2i(window.getSize() / 2u);
@@ -85,58 +82,6 @@ int main(int, char **) {
                     cameraAngles = glm::vec2();
                     cameraRotation = glm::mat4(1.f);
                     cameraOffset = defaultCameraOffset;
-
-                    u_x0 = u_y0 = u_s = 0;
-                    u_fx = u_fy = 1;
-
-                    updateCamera = true;
-                    break;
-
-                case sf::Keyboard::Q:
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
-                        u_fx /= 1.1;
-                    else
-                        u_fx *= 1.1;
-
-                    updateCamera = true;
-                    break;
-
-                case sf::Keyboard::E:
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
-                        u_fy /= 1.1;
-                    else
-                        u_fy *= 1.1;
-
-                    updateCamera = true;
-                    break;
-
-                case sf::Keyboard::I:
-                    u_y0 -= 0.1;
-                    updateCamera = true;
-                    break;
-
-                case sf::Keyboard::J:
-                    u_x0 += 0.1;
-                    updateCamera = true;
-                    break;
-
-                case sf::Keyboard::K:
-                    u_y0 += 0.1;
-                    updateCamera = true;
-                    break;
-
-                case sf::Keyboard::L:
-                    u_x0 -= 0.1;
-                    updateCamera = true;
-                    break;
-
-                case sf::Keyboard::Z:
-                    u_s -= 0.1;
-                    updateCamera = true;
-                    break;
-
-                case sf::Keyboard::X:
-                    u_s += 0.1;
                     updateCamera = true;
                     break;
 
@@ -144,18 +89,6 @@ int main(int, char **) {
                     break;
                 }
 
-                break;
-
-            case sf::Event::MouseWheelScrolled:
-                if (event.mouseWheelScroll.delta > 0) {
-                    u_fx *= 1.1;
-                    u_fy *= 1.1;
-                } else {
-                    u_fx /= 1.1;
-                    u_fy /= 1.1;
-                }
-
-                updateCamera = true;
                 break;
 
             case sf::Event::Resized: {
@@ -225,22 +158,8 @@ int main(int, char **) {
             }
 
             if (updateCamera) {
-                cam_extr = glm::translate(glm::mat4(1.f), glm::vec3(cameraOffset));
-                cam_extr *= cameraRotation;
-
-                glm::mat3 intr_translate(1, 0, 0,
-                                         0, 1, 0,
-                                         u_x0, u_y0, 1);
-
-                glm::mat3 intr_scale(u_fx, 0, 0,
-                                     0, u_fy, 0,
-                                     0, 0, 1);
-
-                glm::mat3 intr_shear(1, 0, 0,
-                                     u_s / u_fx, 1, 0,
-                                     0, 0, 1);
-
-                cam_intr = glm::inverse(intr_translate * intr_scale * intr_shear);
+                camera = glm::translate(glm::mat4(1.f), glm::vec3(cameraOffset));
+                camera *= cameraRotation;
 
                 updateCamera = false;
             }
@@ -250,8 +169,7 @@ int main(int, char **) {
         states.shader = &imageShader;
 
         imageShader.setUniform("resolution", sf::Glsl::Vec2(window.getSize()));
-        imageShader.setUniform("cam_extr", sf::Glsl::Mat4(glm::value_ptr(cam_extr)));
-        imageShader.setUniform("cam_intr", sf::Glsl::Mat3(glm::value_ptr(cam_intr)));
+        imageShader.setUniform("camera", sf::Glsl::Mat4(glm::value_ptr(camera)));
 
         sf::RectangleShape rect(window.getView().getSize());
         image.draw(rect, states);
