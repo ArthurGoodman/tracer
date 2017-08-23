@@ -42,8 +42,10 @@ int main(int, char **) {
     sf::Vector2f cameraAngles;
     glm::vec4 cameraOffset = defaultCameraOffset;
 
+    glm::mat4 cam_t(1.f), cam_r(1.f);
+
     while (window.isOpen()) {
-        sf::Vector2f fixedCursosPos = sf::Vector2f(window.getSize() / 2u);
+        sf::Vector2i fixedCursosPos = sf::Vector2i(window.getSize() / 2u);
 
         sf::Event event;
 
@@ -102,40 +104,51 @@ int main(int, char **) {
                 break;
             }
 
-        sf::Vector2f delta = fixedCursosPos - sf::Vector2f(sf::Mouse::getPosition());
-        delta /= 200.f;
-
         if (window.hasFocus()) {
-            sf::Mouse::setPosition(sf::Vector2i(fixedCursosPos));
+            sf::Vector2i delta = fixedCursosPos - sf::Mouse::getPosition();
+            sf::Mouse::setPosition(fixedCursosPos);
 
-            cameraAngles += delta;
+            if (delta.x != 0 || delta.y != 0) {
+                cameraAngles += sf::Vector2f(delta) / 200.f;
+
+                cam_r = glm::rotate(glm::mat4(1.f), cameraAngles.x, glm::vec3(0.f, -1.f, 0.f));
+                cam_r = glm::rotate(cam_r, -cameraAngles.y, glm::vec3(1.f, 0.f, 0.f));
+            }
+
+            float step = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? 0.05f : 0.01f;
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+                static const glm::vec4 forward = glm::vec4(0, 0, 1, 0);
+                glm::vec4 dir = cam_r * forward * step;
+
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+                    cameraOffset += dir;
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+                    cameraOffset -= dir;
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+                static const glm::vec4 right = glm::vec4(1, 0, 0, 0);
+                glm::vec4 dir = cam_r * right * step;
+
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+                    cameraOffset += dir;
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+                    cameraOffset -= dir;
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Keyboard::isKeyPressed(sf::Keyboard::C)) {
+                static const glm::vec4 up = glm::vec4(0, 1, 0, 0);
+                glm::vec4 dir = up * step;
+
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+                    cameraOffset += dir;
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+                    cameraOffset -= dir;
+            }
+
+            cam_t = glm::translate(glm::mat4(1.f), glm::vec3(cameraOffset));
         }
-
-        glm::mat4 cam_r = glm::rotate(glm::mat4(1.f), cameraAngles.x, glm::vec3(0.f, -1.f, 0.f));
-        cam_r = glm::rotate(cam_r, -cameraAngles.y, glm::vec3(1.f, 0.f, 0.f));
-
-        static const glm::vec4 forward = glm::vec4(0, 0, 1, 0);
-        static const glm::vec4 right = glm::vec4(1, 0, 0, 0);
-        static const glm::vec4 up = glm::vec4(0, 1, 0, 0);
-
-        float step = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? 0.05f : 0.01f;
-
-        if (window.hasFocus()) {
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-                cameraOffset += cam_r * (forward * step);
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-                cameraOffset -= cam_r * (forward * step);
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-                cameraOffset += cam_r * (right * step);
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-                cameraOffset -= cam_r * (right * step);
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-                cameraOffset += up * step;
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
-                cameraOffset -= up * step;
-        }
-
-        glm::mat4 cam_t = glm::translate(glm::mat4(1.f), glm::vec3(cameraOffset));
 
         sf::RenderStates states;
         states.shader = &imageShader;
@@ -149,8 +162,6 @@ int main(int, char **) {
         image.draw(rect, states);
 
         image.display();
-
-        window.clear();
 
         states.shader = &postfxShader;
 
