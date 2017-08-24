@@ -44,7 +44,13 @@ int main(int, char **) {
     glm::mat4 camera, cameraRotation;
     bool updateCamera = true;
 
+    sf::Clock clock;
+
+    sf::Mouse::setPosition(sf::Vector2i(window.getSize() / 2u), window);
+
     while (window.isOpen()) {
+        sf::Time elapsed = clock.restart();
+
         sf::Vector2i fixedCursosPos = sf::Vector2i(window.getSize() / 2u);
 
         sf::Event event;
@@ -99,7 +105,7 @@ int main(int, char **) {
             }
 
             case sf::Event::GainedFocus:
-                sf::Mouse::setPosition(sf::Vector2i(fixedCursosPos));
+                sf::Mouse::setPosition(fixedCursosPos, window);
                 break;
 
             default:
@@ -107,8 +113,8 @@ int main(int, char **) {
             }
 
         if (window.hasFocus()) {
-            sf::Vector2i delta = fixedCursosPos - sf::Mouse::getPosition();
-            sf::Mouse::setPosition(fixedCursosPos);
+            sf::Vector2i delta = fixedCursosPos - sf::Mouse::getPosition(window);
+            sf::Mouse::setPosition(fixedCursosPos, window);
 
             if (delta.x != 0 || delta.y != 0) {
                 cameraAngles += glm::vec2(delta.x, delta.y) / 200.f;
@@ -119,7 +125,8 @@ int main(int, char **) {
                 updateCamera = true;
             }
 
-            float step = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? 0.05f : 0.01f;
+            float step = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? 2.f : 1.f;
+            step *= elapsed.asSeconds();
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
                 static const glm::vec4 forward = glm::vec4(0, 0, 1, 0);

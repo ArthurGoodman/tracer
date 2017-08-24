@@ -9,7 +9,7 @@ uniform mat4 camera;
 
 float sdPlane( vec3 p )
 {
-    return p.y;
+    return abs(p.y);
 }
 
 float sdSphere( vec3 p, float s )
