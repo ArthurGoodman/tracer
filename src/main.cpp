@@ -98,9 +98,9 @@ int main(int, char **) {
                 break;
 
             case sf::Event::Resized: {
-                windowPos = window.getPosition();
-                videoMode = sf::VideoMode(event.size.width, event.size.height);
-                reinitializeWindow(videoMode, sf::Style::Default);
+                // windowPos = window.getPosition();
+                // videoMode = sf::VideoMode(event.size.width, event.size.height);
+                // reinitializeWindow(videoMode, sf::Style::Default);
                 break;
             }
 

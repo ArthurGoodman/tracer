@@ -14,7 +14,7 @@ add_executable(${PROJECT_NAME} ${SRC})
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../SFML/cmake/Modules/")
 set(SFML_ROOT "${CMAKE_SOURCE_DIR}/../SFML/")
-set(SFML_STATIC_LIBRARIES TRUE)
+#set(SFML_STATIC_LIBRARIES TRUE)
 find_package(SFML COMPONENTS graphics window system REQUIRED)
 include_directories(${SFML_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
