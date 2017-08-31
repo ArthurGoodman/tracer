@@ -14,10 +14,8 @@ int main(int, char **) {
 
     bool isFullscreen = false;
     sf::VideoMode videoMode(windowWidth, windowHeight);
-    sf::Vector2i windowPos;
 
     sf::RenderWindow window(videoMode, windowTitle, sf::Style::Default);
-    windowPos = window.getPosition();
 
     sf::RenderTexture image;
 
@@ -27,6 +25,9 @@ int main(int, char **) {
 
         window.setMouseCursorGrabbed(true);
         window.setMouseCursorVisible(false);
+
+        sf::Vector2f screenCenter(sf::VideoMode::getDesktopMode().width / 2, sf::VideoMode::getDesktopMode().height / 2);
+        window.setPosition(sf::Vector2i(screenCenter - window.getView().getCenter()));
     };
 
     reinitializeWindow(videoMode, sf::Style::Default);
@@ -66,7 +67,6 @@ int main(int, char **) {
                 case sf::Keyboard::Escape:
                     if (isFullscreen) {
                         reinitializeWindow(videoMode, sf::Style::Default);
-                        window.setPosition(windowPos);
                         isFullscreen = false;
                     } else
                         window.close();
@@ -75,10 +75,9 @@ int main(int, char **) {
 
                 case sf::Keyboard::F11:
                 case sf::Keyboard::F:
-                    if (isFullscreen) {
+                    if (isFullscreen)
                         reinitializeWindow(videoMode, sf::Style::Default);
-                        window.setPosition(windowPos);
-                    } else
+                    else
                         reinitializeWindow(sf::VideoMode::getDesktopMode(), sf::Style::Fullscreen);
 
                     isFullscreen = !isFullscreen;
@@ -97,12 +96,9 @@ int main(int, char **) {
 
                 break;
 
-            case sf::Event::Resized: {
-                // windowPos = window.getPosition();
-                // videoMode = sf::VideoMode(event.size.width, event.size.height);
-                // reinitializeWindow(videoMode, sf::Style::Default);
+            case sf::Event::Resized:
+                image.create(event.size.width, event.size.height);
                 break;
-            }
 
             case sf::Event::GainedFocus:
                 sf::Mouse::setPosition(fixedCursosPos, window);
