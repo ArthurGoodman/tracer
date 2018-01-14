@@ -4,13 +4,16 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
 
-int main(int, char **) {
+int main(int, char **)
+{
     const char *windowTitle = "TRACER";
 
     const float windowDownscale = 1.5;
 
-    const int windowWidth = sf::VideoMode::getDesktopMode().width / windowDownscale;
-    const int windowHeight = sf::VideoMode::getDesktopMode().height / windowDownscale;
+    const int windowWidth =
+        sf::VideoMode::getDesktopMode().width / windowDownscale;
+    const int windowHeight =
+        sf::VideoMode::getDesktopMode().height / windowDownscale;
 
     bool isFullscreen = false;
     sf::VideoMode videoMode(windowWidth, windowHeight);
@@ -26,8 +29,11 @@ int main(int, char **) {
         window.setMouseCursorGrabbed(true);
         window.setMouseCursorVisible(false);
 
-        sf::Vector2f screenCenter(sf::VideoMode::getDesktopMode().width / 2, sf::VideoMode::getDesktopMode().height / 2);
-        window.setPosition(sf::Vector2i(screenCenter - window.getView().getCenter()));
+        sf::Vector2f screenCenter(
+            sf::VideoMode::getDesktopMode().width / 2,
+            sf::VideoMode::getDesktopMode().height / 2);
+        window.setPosition(
+            sf::Vector2i(screenCenter - window.getView().getCenter()));
     };
 
     reinitializeWindow(videoMode, sf::Style::Default);
@@ -49,7 +55,8 @@ int main(int, char **) {
 
     sf::Mouse::setPosition(sf::Vector2i(window.getSize() / 2u), window);
 
-    while (window.isOpen()) {
+    while (window.isOpen())
+    {
         sf::Time elapsed = clock.restart();
 
         sf::Vector2i fixedCursosPos = sf::Vector2i(window.getSize() / 2u);
@@ -57,18 +64,22 @@ int main(int, char **) {
         sf::Event event;
 
         while (window.pollEvent(event))
-            switch (event.type) {
+            switch (event.type)
+            {
             case sf::Event::Closed:
                 window.close();
                 break;
 
             case sf::Event::KeyPressed:
-                switch (event.key.code) {
+                switch (event.key.code)
+                {
                 case sf::Keyboard::Escape:
-                    if (isFullscreen) {
+                    if (isFullscreen)
+                    {
                         reinitializeWindow(videoMode, sf::Style::Default);
                         isFullscreen = false;
-                    } else
+                    }
+                    else
                         window.close();
 
                     break;
@@ -78,7 +89,9 @@ int main(int, char **) {
                     if (isFullscreen)
                         reinitializeWindow(videoMode, sf::Style::Default);
                     else
-                        reinitializeWindow(sf::VideoMode::getDesktopMode(), sf::Style::Fullscreen);
+                        reinitializeWindow(
+                            sf::VideoMode::getDesktopMode(),
+                            sf::Style::Fullscreen);
 
                     isFullscreen = !isFullscreen;
                     break;
@@ -108,23 +121,31 @@ int main(int, char **) {
                 break;
             }
 
-        if (window.hasFocus()) {
-            sf::Vector2i delta = fixedCursosPos - sf::Mouse::getPosition(window);
+        if (window.hasFocus())
+        {
+            sf::Vector2i delta =
+                fixedCursosPos - sf::Mouse::getPosition(window);
             sf::Mouse::setPosition(fixedCursosPos, window);
 
-            if (delta.x != 0 || delta.y != 0) {
+            if (delta.x != 0 || delta.y != 0)
+            {
                 cameraAngles += glm::vec2(delta.x, delta.y) / 200.f;
 
-                cameraRotation = glm::rotate(glm::mat4(1.f), cameraAngles.x, glm::vec3(0.f, -1.f, 0.f));
-                cameraRotation = glm::rotate(cameraRotation, cameraAngles.y, glm::vec3(-1.f, 0.f, 0.f));
+                cameraRotation = glm::rotate(
+                    glm::mat4(1.f), cameraAngles.x, glm::vec3(0.f, -1.f, 0.f));
+                cameraRotation = glm::rotate(
+                    cameraRotation, cameraAngles.y, glm::vec3(-1.f, 0.f, 0.f));
 
                 updateCamera = true;
             }
 
-            float step = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? 2.f : 1.f;
+            float step =
+                sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? 2.f : 1.f;
             step *= elapsed.asSeconds();
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) ||
+                sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+            {
                 static const glm::vec4 forward = glm::vec4(0, 0, 1, 0);
                 glm::vec4 dir = cameraRotation * forward * step;
 
@@ -136,7 +157,9 @@ int main(int, char **) {
                 updateCamera = true;
             }
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) ||
+                sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+            {
                 static const glm::vec4 right = glm::vec4(1, 0, 0, 0);
                 glm::vec4 dir = cameraRotation * right * step;
 
@@ -148,7 +171,9 @@ int main(int, char **) {
                 updateCamera = true;
             }
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Keyboard::isKeyPressed(sf::Keyboard::C)) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) ||
+                sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+            {
                 static const glm::vec4 up = glm::vec4(0, 1, 0, 0);
                 glm::vec4 dir = up * step;
 
@@ -160,8 +185,10 @@ int main(int, char **) {
                 updateCamera = true;
             }
 
-            if (updateCamera) {
-                camera = glm::translate(glm::mat4(1.f), glm::vec3(cameraOffset));
+            if (updateCamera)
+            {
+                camera =
+                    glm::translate(glm::mat4(1.f), glm::vec3(cameraOffset));
                 camera *= cameraRotation;
 
                 updateCamera = false;
@@ -172,7 +199,8 @@ int main(int, char **) {
         states.shader = &imageShader;
 
         imageShader.setUniform("resolution", sf::Glsl::Vec2(window.getSize()));
-        imageShader.setUniform("camera", sf::Glsl::Mat4(glm::value_ptr(camera)));
+        imageShader.setUniform(
+            "camera", sf::Glsl::Mat4(glm::value_ptr(camera)));
 
         sf::RectangleShape rect(window.getView().getSize());
         image.draw(rect, states);
