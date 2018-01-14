@@ -15,7 +15,12 @@ set(TRACER ${PROJECT_NAME})
 file(GLOB_RECURSE SRC src/*.cpp)
 add_executable(${TRACER} ${SRC})
 
-set(SFML_ROOT ${CMAKE_SOURCE_DIR}/../SFML)
+if(WIN32)
+    set(SFML_ROOT ${CMAKE_SOURCE_DIR}/../SFML)
+else()
+    set(SFML_ROOT /usr/local/share/SFML)
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${SFML_ROOT}/cmake/Modules)
 
 find_package(SFML 2
