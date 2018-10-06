@@ -36,9 +36,15 @@ target_include_directories(${TRACER}
 )
 
 target_link_libraries(${TRACER}
-    PRIVATE ${SFML_LIBRARIES}
+    PRIVATE sfml-graphics
+    PRIVATE sfml-window
+    PRIVATE sfml-system
     PRIVATE ${SFML_DEPENDENCIES}
 )
+
+target_compile_definitions(${TRACER}
+    PRIVATE GLM_ENABLE_EXPERIMENTAL
+    )
 
 if(WIN32)
     file(GLOB SFML_DLLS ${SFML_ROOT}/bin/*.dll)
